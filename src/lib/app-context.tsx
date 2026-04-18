@@ -3,6 +3,13 @@ import { BPM_DEFAULT } from "./ahaConstants";
 
 export type PatientMode = "adult" | "pediatric" | "infant";
 export type RescuerCount = "single" | "two";
+export type Rhythm = "shockable" | "non-shockable";
+
+export interface DrugLogEntry {
+  name: string;
+  at: number;
+  doseDisplay: string;
+}
 
 interface ActiveCode {
   isActive: boolean;
@@ -10,6 +17,14 @@ interface ActiveCode {
   bpm: number;
   compressorSwitchCount: number;
   finalElapsedMs: number;
+  // Pass 3
+  patientWeightKg: number | null;
+  currentRhythm: Rhythm | null;
+  rhythmCheckCount: number;
+  epiLastDoseAt: number | null;
+  epiDosesGiven: number;
+  drugLog: DrugLogEntry[];
+  causesConsidered: string[];
 }
 
 interface AppState {
@@ -24,12 +39,17 @@ interface AppState {
   disclaimerAccepted: boolean;
   acceptDisclaimer: () => void;
   resetDisclaimer: () => void;
-  // Active code slice
   code: ActiveCode;
   startCode: () => void;
   stopCode: () => void;
   setBpm: (n: number) => void;
   incrementCompressorSwitch: () => void;
+  // Pass 3 actions
+  setWeight: (kg: number | null) => void;
+  setRhythm: (r: Rhythm) => void;
+  logEpi: () => void;
+  logDrug: (entry: { name: string; doseDisplay: string }) => void;
+  toggleCause: (label: string) => void;
 }
 
 const KEY = "mednurse";
@@ -60,6 +80,13 @@ const INITIAL_CODE: ActiveCode = {
   bpm: BPM_DEFAULT,
   compressorSwitchCount: 0,
   finalElapsedMs: 0,
+  patientWeightKg: null,
+  currentRhythm: null,
+  rhythmCheckCount: 0,
+  epiLastDoseAt: null,
+  epiDosesGiven: 0,
+  drugLog: [],
+  causesConsidered: [],
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -106,13 +133,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const startCode = useCallback(() => {
-    setCode({
-      isActive: true,
-      startedAt: Date.now(),
-      bpm: BPM_DEFAULT,
-      compressorSwitchCount: 0,
-      finalElapsedMs: 0,
-    });
+    setCode({ ...INITIAL_CODE, isActive: true, startedAt: Date.now() });
   }, []);
 
   const stopCode = useCallback(() => {
@@ -120,6 +141,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...prev,
       isActive: false,
       finalElapsedMs: prev.startedAt ? Date.now() - prev.startedAt : 0,
+      // Clear ephemeral session data
+      patientWeightKg: null,
+      currentRhythm: prev.currentRhythm, // preserve for debrief view briefly; not persisted
+      epiLastDoseAt: null,
+      drugLog: prev.drugLog, // keep for debrief reference
+      causesConsidered: prev.causesConsidered,
     }));
   }, []);
 
@@ -129,6 +156,47 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const incrementCompressorSwitch = useCallback(() => {
     setCode((prev) => ({ ...prev, compressorSwitchCount: prev.compressorSwitchCount + 1 }));
+  }, []);
+
+  const setWeight = useCallback((kg: number | null) => {
+    setCode((prev) => ({ ...prev, patientWeightKg: kg }));
+  }, []);
+
+  const setRhythm = useCallback((r: Rhythm) => {
+    setCode((prev) => ({
+      ...prev,
+      currentRhythm: r,
+      rhythmCheckCount: prev.rhythmCheckCount + 1,
+    }));
+  }, []);
+
+  const logEpi = useCallback(() => {
+    const at = Date.now();
+    setCode((prev) => ({
+      ...prev,
+      epiLastDoseAt: at,
+      epiDosesGiven: prev.epiDosesGiven + 1,
+      drugLog: [...prev.drugLog, { name: "Epinephrine", at, doseDisplay: "1 mg IV/IO" }],
+    }));
+  }, []);
+
+  const logDrug = useCallback((entry: { name: string; doseDisplay: string }) => {
+    setCode((prev) => ({
+      ...prev,
+      drugLog: [...prev.drugLog, { ...entry, at: Date.now() }],
+    }));
+  }, []);
+
+  const toggleCause = useCallback((label: string) => {
+    setCode((prev) => {
+      const has = prev.causesConsidered.includes(label);
+      return {
+        ...prev,
+        causesConsidered: has
+          ? prev.causesConsidered.filter((c) => c !== label)
+          : [...prev.causesConsidered, label],
+      };
+    });
   }, []);
 
   return (
@@ -150,6 +218,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         stopCode,
         setBpm,
         incrementCompressorSwitch,
+        setWeight,
+        setRhythm,
+        logEpi,
+        logDrug,
+        toggleCause,
       }}
     >
       {children}
