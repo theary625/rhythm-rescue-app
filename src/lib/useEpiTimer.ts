@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useApp } from "./app-context";
 import { EPI_CYCLE_MIN_MS, EPI_CYCLE_MAX_MS } from "./ahaConstants";
 import { speak, VOICE_LINES } from "./voice";
+import { urgentHaptic } from "./platform";
 
 export type EpiState = "idle" | "countdown" | "window" | "due";
 
@@ -51,12 +52,8 @@ export function useEpiTimer(): EpiTimer {
 
   // Single short haptic + voice cue on transitions
   if (state !== lastStateRef.current) {
-    if ((state === "window" || state === "due") && haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
-      try {
-        navigator.vibrate(200);
-      } catch {
-        /* ignore */
-      }
+    if ((state === "window" || state === "due") && haptics) {
+      void urgentHaptic();
     }
     if (state === "window") speak(VOICE_LINES.epiWindow);
     if (state === "due") speak(VOICE_LINES.epiDue, { priority: "urgent" });
