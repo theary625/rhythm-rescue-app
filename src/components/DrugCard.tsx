@@ -4,7 +4,8 @@ import type { DrugRef } from "@/lib/ahaConstants";
 interface Props {
   drug: DrugRef;
   weightKg: number | null;
-  onLogDose: (entry: { name: string; doseDisplay: string }) => void;
+  /** When undefined, the Log dose button is hidden (Reference Mode). */
+  onLogDose?: (entry: { name: string; doseDisplay: string }) => void;
 }
 
 function calcMg(perKgMg: number, weight: number, max?: number) {
@@ -25,10 +26,6 @@ export function DrugCard({ drug, weightKg, onLogDose }: Props) {
   if (isPed && weightKg) {
     calculated = calcMg(drug.perKgMg!, weightKg, drug.maxSingleDoseMg);
   }
-
-  const displayDose = calculated
-    ? `${drug.formula ?? ""} → ${formatMg(calculated.capped)}`
-    : drug.dose;
 
   return (
     <div className="rounded-2xl bg-brand-accent/15 p-4">
@@ -68,23 +65,42 @@ export function DrugCard({ drug, weightKg, onLogDose }: Props) {
         <span className="font-bold">Interval: </span>
         {drug.interval}
       </div>
+      {drug.minSingleDose && (
+        <div className="mt-1 text-xs font-semibold text-brand-red">
+          {drug.minSingleDose}
+        </div>
+      )}
+      {drug.maxSingleDose && (
+        <div className="mt-1 text-xs text-brand-white/70">
+          <span className="font-bold">Max single dose: </span>
+          {drug.maxSingleDose}
+        </div>
+      )}
+      {drug.max && (
+        <div className="mt-1 text-xs text-brand-white/70">
+          <span className="font-bold">Max: </span>
+          {drug.max}
+        </div>
+      )}
       {drug.notes && (
         <div className="mt-1 text-xs text-brand-white/60">{drug.notes}</div>
       )}
 
-      <Button
-        variant="secondary"
-        size="md"
-        className="mt-3"
-        onClick={() =>
-          onLogDose({
-            name: drug.name,
-            doseDisplay: calculated ? formatMg(calculated.capped) : drug.dose,
-          })
-        }
-      >
-        Log dose given
-      </Button>
+      {onLogDose && (
+        <Button
+          variant="secondary"
+          size="md"
+          className="mt-3"
+          onClick={() =>
+            onLogDose({
+              name: drug.name,
+              doseDisplay: calculated ? formatMg(calculated.capped) : drug.dose,
+            })
+          }
+        >
+          Log dose given
+        </Button>
+      )}
     </div>
   );
 }

@@ -105,14 +105,12 @@ function HomeScreen() {
             >
               Start Code
             </Button>
-            <div className="text-center">
-              <Link
-                to="/reference"
-                className="inline-flex min-h-12 items-center justify-center text-sm font-semibold text-brand-softblue hover:text-brand-white"
-              >
-                Quick reference →
-              </Link>
-            </div>
+            <Link
+              to="/reference"
+              className="inline-flex min-h-14 w-full items-center justify-center rounded-2xl border-2 border-brand-accent px-5 text-base font-bold text-brand-white transition-colors hover:bg-brand-accent/20"
+            >
+              Reference
+            </Link>
           </div>
         </section>
 
