@@ -69,6 +69,7 @@ function RootComponent() {
     <AppProvider>
       <Outlet />
       <DisclaimerModal />
+      <Toaster position="top-center" />
     </AppProvider>
   );
 }
