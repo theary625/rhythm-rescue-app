@@ -4,6 +4,7 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/Button";
 import { useApp, type PatientMode, type RescuerCount } from "@/lib/app-context";
 
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -35,8 +36,13 @@ const RESCUER_OPTIONS: { value: RescuerCount; label: string }[] = [
 ];
 
 function HomeScreen() {
-  const { patientMode, setPatientMode, rescuers, setRescuers } = useApp();
+  const { patientMode, setPatientMode, rescuers, setRescuers, startCode } = useApp();
   const navigate = useNavigate();
+
+  const handleStart = () => {
+    startCode();
+    navigate({ to: "/code" });
+  };
 
   return (
     <ScreenShell>
@@ -69,7 +75,7 @@ function HomeScreen() {
               variant="primary"
               size="lg"
               fullWidth
-              onClick={() => navigate({ to: "/code" })}
+              onClick={handleStart}
             >
               Start Code
             </Button>
