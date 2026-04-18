@@ -49,7 +49,7 @@ export function useEpiTimer(): EpiTimer {
     overdueMs = elapsed - EPI_CYCLE_MAX_MS;
   }
 
-  // Single short haptic on transitions
+  // Single short haptic + voice cue on transitions
   if (state !== lastStateRef.current) {
     if ((state === "window" || state === "due") && haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
       try {
@@ -58,6 +58,8 @@ export function useEpiTimer(): EpiTimer {
         /* ignore */
       }
     }
+    if (state === "window") speak(VOICE_LINES.epiWindow);
+    if (state === "due") speak(VOICE_LINES.epiDue, { priority: "urgent" });
     lastStateRef.current = state;
   }
 
