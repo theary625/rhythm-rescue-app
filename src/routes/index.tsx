@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ScreenShell } from "@/components/ScreenShell";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/Button";
+import { InstallBanner } from "@/components/InstallBanner";
+import { IosInstallTooltip } from "@/components/IosInstallTooltip";
 import { useApp, type PatientMode, type RescuerCount } from "@/lib/app-context";
+import { speak, VOICE_LINES } from "@/lib/voice";
+import { isListenerAvailable, startListener } from "@/lib/listener";
+import { toast } from "sonner";
 
 
 export const Route = createFileRoute("/")({
@@ -36,13 +42,33 @@ const RESCUER_OPTIONS: { value: RescuerCount; label: string }[] = [
 ];
 
 function HomeScreen() {
-  const { patientMode, setPatientMode, rescuers, setRescuers, startCode } = useApp();
+  const { patientMode, setPatientMode, rescuers, setRescuers, startCode, handsFreeEnabled, setHandsFreeEnabled } = useApp();
   const navigate = useNavigate();
 
   const handleStart = () => {
     startCode();
+    speak(VOICE_LINES.codeStart);
     navigate({ to: "/code" });
   };
+
+  // Hands-free: only "start code" command on Home.
+  useEffect(() => {
+    if (!handsFreeEnabled || !isListenerAvailable()) return;
+    const handle = startListener({
+      onCommand: (cmd) => {
+        if (cmd === "start-code") {
+          speak(VOICE_LINES.startingCode);
+          handleStart();
+        }
+      },
+      onError: () => {
+        setHandsFreeEnabled(false);
+        toast("Hands-free unavailable on this device.");
+      },
+    });
+    return () => handle?.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handsFreeEnabled]);
 
   return (
     <ScreenShell>
@@ -94,6 +120,8 @@ function HomeScreen() {
           Cognitive aid. Not a replacement for clinical judgment.
         </footer>
       </div>
+      <InstallBanner />
+      <IosInstallTooltip />
     </ScreenShell>
   );
 }

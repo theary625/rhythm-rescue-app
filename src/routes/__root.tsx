@@ -1,10 +1,13 @@
+import { useEffect } from "react";
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { AppProvider } from "@/lib/app-context";
+import { AppProvider, useApp } from "@/lib/app-context";
 import { DisclaimerModal } from "@/components/DisclaimerModal";
 import { Onboarding } from "@/components/Onboarding";
 import { Toaster } from "@/components/ui/sonner";
+import { captureInstallPrompt } from "@/lib/pwa";
+import { configureVoice } from "@/lib/voice";
 
 function NotFoundComponent() {
   return (
@@ -43,8 +46,19 @@ export const Route = createRootRoute({
           "Code-blue cognitive aid for nurses. AHA-aligned CPR metronome and ACLS workflow support.",
       },
       { name: "theme-color", content: "#1A2744" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      {
+        name: "apple-mobile-web-app-status-bar-style",
+        content: "black-translucent",
+      },
+      { name: "apple-mobile-web-app-title", content: "CodeAssist" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/icons/icon-192.png" },
+      { rel: "icon", href: "/icons/icon-192.png", type: "image/png" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -68,10 +82,27 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AppProvider>
+      <VoiceConfigBridge />
       <Outlet />
       <Onboarding />
       <DisclaimerModal />
       <Toaster position="top-center" />
     </AppProvider>
   );
+}
+
+function VoiceConfigBridge() {
+  const { voicePromptsEnabled, voiceVolume, preferredVoiceURI, hydrated } = useApp();
+  useEffect(() => {
+    captureInstallPrompt();
+  }, []);
+  useEffect(() => {
+    if (!hydrated) return;
+    configureVoice({
+      enabled: voicePromptsEnabled,
+      volume: voiceVolume,
+      preferredVoiceURI,
+    });
+  }, [voicePromptsEnabled, voiceVolume, preferredVoiceURI, hydrated]);
+  return null;
 }

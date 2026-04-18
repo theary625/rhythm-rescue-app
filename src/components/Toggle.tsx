@@ -5,17 +5,23 @@ interface Props {
   description?: string;
   checked: boolean;
   onChange: (b: boolean) => void;
+  disabled?: boolean;
 }
 
-export function Toggle({ label, description, checked, onChange }: Props) {
+export function Toggle({ label, description, checked, onChange, disabled = false }: Props) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      aria-disabled={disabled}
+      disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="flex w-full min-h-12 items-center justify-between gap-4 py-2 text-left"
+      className={cn(
+        "flex w-full min-h-12 items-center justify-between gap-4 py-2 text-left",
+        disabled && "opacity-50 cursor-not-allowed",
+      )}
     >
       <div className="flex-1">
         <div className="text-base font-semibold text-brand-navy">{label}</div>
