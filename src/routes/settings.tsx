@@ -191,6 +191,54 @@ function SettingsScreen() {
           </Card>
         </Section>
 
+        <Section title="Voice prompts">
+          <Card>
+            <Toggle
+              label="Voice prompts"
+              description="Event-driven cues only. No continuous narration."
+              checked={voicePromptsEnabled}
+              onChange={setVoicePromptsEnabled}
+            />
+          </Card>
+          <Card>
+            <Label>Voice</Label>
+            <VoicePicker value={preferredVoiceURI} onChange={setPreferredVoiceURI} />
+          </Card>
+          <Card>
+            <Slider
+              label="Voice volume"
+              value={voiceVolume}
+              min={0}
+              max={100}
+              onChange={setVoiceVolume}
+            />
+          </Card>
+        </Section>
+
+        <Section title="Hands-free">
+          <Card>
+            <Toggle
+              label="Hands-free commands"
+              description="Listens for a small set of commands during an active code. Tap the microphone on the code screen to stop listening."
+              checked={handsFreeAvailable && handsFreeEnabled}
+              onChange={(v) => {
+                if (!handsFreeAvailable) return;
+                setHandsFreeEnabled(v);
+              }}
+              disabled={!handsFreeAvailable}
+            />
+            {!handsFreeAvailable && (
+              <p className="mt-2 text-xs font-semibold text-brand-navy/60">
+                Not supported on this browser.
+              </p>
+            )}
+            <p className="mt-3 text-xs text-brand-navy/60">
+              Privacy: handled by your device or browser's built-in speech recognition. See your
+              browser's documentation for details.
+            </p>
+          </Card>
+        </Section>
+
         <Section title="Display">
           <Card>
             <Toggle
@@ -201,12 +249,39 @@ function SettingsScreen() {
             />
           </Card>
           <Card>
+            <Toggle
+              label="Compact mode"
+              description="Glanceable layout — metronome, timer, and basic controls only."
+              checked={compactMode}
+              onChange={setCompactMode}
+            />
+          </Card>
+        </Section>
+
+        <Section title="App & device">
+          {installAvailable && (
+            <Card>
+              <button
+                type="button"
+                onClick={handleInstall}
+                className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand-red text-sm font-bold text-brand-white hover:brightness-110"
+              >
+                Install on this device
+              </button>
+            </Card>
+          )}
+          <Card>
             <Label>Keep screen on during a code</Label>
-            <p className="text-sm text-brand-navy/70">
-              Required for safe use during a code.
+            <p className="text-sm text-brand-navy/70">Required for safe use during a code.</p>
+          </Card>
+          <Card>
+            <Label>Storage used</Label>
+            <p className="font-mono text-sm tabular-nums text-brand-navy">
+              Storage used: {formatBytes(storageBytes)}
             </p>
           </Card>
         </Section>
+
 
         <Section title="History">
           <Card className="p-0">
