@@ -2,7 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ScreenShell } from "@/components/ScreenShell";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/Button";
+import { InstallBanner } from "@/components/InstallBanner";
+import { IosInstallTooltip } from "@/components/IosInstallTooltip";
 import { useApp, type PatientMode, type RescuerCount } from "@/lib/app-context";
+import { speak, VOICE_LINES } from "@/lib/voice";
 
 
 export const Route = createFileRoute("/")({
@@ -41,6 +44,7 @@ function HomeScreen() {
 
   const handleStart = () => {
     startCode();
+    speak(VOICE_LINES.codeStart);
     navigate({ to: "/code" });
   };
 
@@ -94,6 +98,8 @@ function HomeScreen() {
           Cognitive aid. Not a replacement for clinical judgment.
         </footer>
       </div>
+      <InstallBanner />
+      <IosInstallTooltip />
     </ScreenShell>
   );
 }
