@@ -3,6 +3,7 @@ import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { AppProvider } from "@/lib/app-context";
 import { DisclaimerModal } from "@/components/DisclaimerModal";
+import { Onboarding } from "@/components/Onboarding";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -68,6 +69,7 @@ function RootComponent() {
   return (
     <AppProvider>
       <Outlet />
+      <Onboarding />
       <DisclaimerModal />
       <Toaster position="top-center" />
     </AppProvider>

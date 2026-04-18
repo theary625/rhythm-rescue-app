@@ -1,19 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+export type ClickPitch = "low" | "mid" | "high";
+
 interface Options {
   bpm: number;
   soundEnabled: boolean;
   hapticsEnabled: boolean;
+  pitch?: ClickPitch;
+  volume?: number; // 0-100
   onBeat?: (beatIndex: number) => void;
-  /** Optional callback invoked when an accent (higher-pitch) beat fires. */
-  accentCount?: number;
 }
 
 const LOOKAHEAD_MS = 25;
 const SCHEDULE_HORIZON_S = 0.1;
 
+const PITCH_HZ: Record<ClickPitch, number> = { low: 800, mid: 1000, high: 1200 };
+
 export function useMetronome(opts: Options) {
-  const { bpm, soundEnabled, hapticsEnabled, onBeat } = opts;
+  const { bpm, soundEnabled, hapticsEnabled, pitch = "mid", volume = 60, onBeat } = opts;
 
   const [isRunning, setIsRunning] = useState(false);
 
@@ -24,11 +28,12 @@ export function useMetronome(opts: Options) {
   const bpmRef = useRef(bpm);
   const soundRef = useRef(soundEnabled);
   const hapticsRef = useRef(hapticsEnabled);
+  const pitchRef = useRef(pitch);
+  const volumeRef = useRef(volume);
   const onBeatRef = useRef(onBeat);
   const accentRemainingRef = useRef(0);
   const scheduledBeatsRef = useRef<{ time: number; index: number; accent: boolean }[]>([]);
 
-  // Keep refs current
   useEffect(() => {
     bpmRef.current = bpm;
   }, [bpm]);
@@ -38,6 +43,12 @@ export function useMetronome(opts: Options) {
   useEffect(() => {
     hapticsRef.current = hapticsEnabled;
   }, [hapticsEnabled]);
+  useEffect(() => {
+    pitchRef.current = pitch;
+  }, [pitch]);
+  useEffect(() => {
+    volumeRef.current = volume;
+  }, [volume]);
   useEffect(() => {
     onBeatRef.current = onBeat;
   }, [onBeat]);
@@ -62,9 +73,11 @@ export function useMetronome(opts: Options) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "square";
-    osc.frequency.value = accent ? 1400 : 1000;
+    const baseHz = PITCH_HZ[pitchRef.current];
+    osc.frequency.value = accent ? Math.round(baseHz * 1.4) : baseHz;
+    const peak = Math.max(0, Math.min(1, volumeRef.current / 100)) * 0.4;
     gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(0.25, time + 0.001);
+    gain.gain.linearRampToValueAtTime(peak, time + 0.001);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
     osc.connect(gain).connect(ctx.destination);
     osc.start(time);
@@ -90,7 +103,6 @@ export function useMetronome(opts: Options) {
       beatIndexRef.current += 1;
     }
 
-    // Fire visual + haptic callbacks for beats whose time has arrived
     const now = ctx.currentTime;
     const fired: typeof scheduledBeatsRef.current = [];
     scheduledBeatsRef.current = scheduledBeatsRef.current.filter((b) => {
@@ -134,10 +146,8 @@ export function useMetronome(opts: Options) {
   }, []);
 
   const setBpm = useCallback((_next: number) => {
-    // bpmRef is updated via the effect above; reschedule next beat to avoid glitches
     const ctx = audioCtxRef.current;
     if (!ctx || intervalRef.current === null) return;
-    // Snap nextBeatTime to be no sooner than now + small buffer at the new tempo
     const interval = 60 / bpmRef.current;
     if (nextBeatTimeRef.current > ctx.currentTime + interval) {
       nextBeatTimeRef.current = ctx.currentTime + interval;
@@ -155,7 +165,6 @@ export function useMetronome(opts: Options) {
     }
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (intervalRef.current !== null) {
