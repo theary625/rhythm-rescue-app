@@ -36,6 +36,10 @@ export interface DrugRef {
   perKgMg?: number;
   maxSingleDoseMg?: number;
   formula?: string;
+  /** Optional display strings for periarrest drugs (Pass 10). */
+  minSingleDose?: string;
+  maxSingleDose?: string;
+  max?: string;
 }
 
 export const ADULT_DRUGS: DrugRef[] = [
