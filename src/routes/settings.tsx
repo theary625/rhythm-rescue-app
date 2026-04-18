@@ -69,12 +69,45 @@ function SettingsScreen() {
     setClickVolume,
     colorBlindMode,
     setColorBlindMode,
+    voicePromptsEnabled,
+    setVoicePromptsEnabled,
+    voiceVolume,
+    setVoiceVolume,
+    preferredVoiceURI,
+    setPreferredVoiceURI,
+    handsFreeEnabled,
+    setHandsFreeEnabled,
+    compactMode,
+    setCompactMode,
     resetDisclaimer,
     resetOnboarding,
     resetPreferences,
     history,
     clearHistory,
   } = useApp();
+
+  const handsFreeAvailable = isListenerAvailable();
+  const [installAvailable, setInstallAvailable] = useState(false);
+  const [storageBytes, setStorageBytes] = useState(0);
+
+  useEffect(() => {
+    setInstallAvailable(hasInstallPrompt() && !isStandalone());
+    setStorageBytes(getMednurseStorageBytes());
+    const onAvail = () => setInstallAvailable(!isStandalone());
+    const onInstalled = () => setInstallAvailable(false);
+    window.addEventListener("mednurse:install-available", onAvail);
+    window.addEventListener("mednurse:install-installed", onInstalled);
+    return () => {
+      window.removeEventListener("mednurse:install-available", onAvail);
+      window.removeEventListener("mednurse:install-installed", onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    const r = await triggerInstall();
+    if (r === "accepted") setInstallAvailable(false);
+    if (r === "unavailable") toast("Install unavailable on this browser.");
+  };
 
   const [confirmClear, setConfirmClear] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
