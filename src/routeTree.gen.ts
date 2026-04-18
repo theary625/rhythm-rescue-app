@@ -9,38 +9,75 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReferenceRouteImport } from './routes/reference'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlgorithmsIndexRouteImport } from './routes/algorithms.index'
+import { Route as AlgorithmsSlugRouteImport } from './routes/algorithms.$slug'
 
+const ReferenceRoute = ReferenceRouteImport.update({
+  id: '/reference',
+  path: '/reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlgorithmsIndexRoute = AlgorithmsIndexRouteImport.update({
+  id: '/algorithms/',
+  path: '/algorithms/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlgorithmsSlugRoute = AlgorithmsSlugRouteImport.update({
+  id: '/algorithms/$slug',
+  path: '/algorithms/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/reference': typeof ReferenceRoute
+  '/algorithms/$slug': typeof AlgorithmsSlugRoute
+  '/algorithms/': typeof AlgorithmsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/reference': typeof ReferenceRoute
+  '/algorithms/$slug': typeof AlgorithmsSlugRoute
+  '/algorithms': typeof AlgorithmsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/reference': typeof ReferenceRoute
+  '/algorithms/$slug': typeof AlgorithmsSlugRoute
+  '/algorithms/': typeof AlgorithmsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/reference' | '/algorithms/$slug' | '/algorithms/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/reference' | '/algorithms/$slug' | '/algorithms'
+  id: '__root__' | '/' | '/reference' | '/algorithms/$slug' | '/algorithms/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ReferenceRoute: typeof ReferenceRoute
+  AlgorithmsSlugRoute: typeof AlgorithmsSlugRoute
+  AlgorithmsIndexRoute: typeof AlgorithmsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reference': {
+      id: '/reference'
+      path: '/reference'
+      fullPath: '/reference'
+      preLoaderRoute: typeof ReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/algorithms/': {
+      id: '/algorithms/'
+      path: '/algorithms'
+      fullPath: '/algorithms/'
+      preLoaderRoute: typeof AlgorithmsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/algorithms/$slug': {
+      id: '/algorithms/$slug'
+      path: '/algorithms/$slug'
+      fullPath: '/algorithms/$slug'
+      preLoaderRoute: typeof AlgorithmsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ReferenceRoute: ReferenceRoute,
+  AlgorithmsSlugRoute: AlgorithmsSlugRoute,
+  AlgorithmsIndexRoute: AlgorithmsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

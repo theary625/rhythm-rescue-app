@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { ALGORITHMS, type AlgoStep, type StepKind } from "@/lib/acls-data";
+import { ALGORITHMS, type AlgoStep, type StepKind, type Algorithm } from "@/lib/acls-data";
 import { ArrowLeft, Zap, Syringe, Activity, Heart, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -66,7 +66,7 @@ const ICON_BG: Record<StepKind, string> = {
 };
 
 function AlgorithmDetail() {
-  const { algo } = Route.useLoaderData();
+  const { algo } = Route.useLoaderData() as { algo: Algorithm };
   const { mode } = useMode();
   const [branchId, setBranchId] = useState(algo.branches[0].id);
   const [done, setDone] = useState<Set<string>>(new Set());
