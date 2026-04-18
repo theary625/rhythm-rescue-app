@@ -392,6 +392,60 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearHistory = useCallback(() => writeHistory([]), []);
 
+  const addWatchSummary = useCallback(
+    (payload: WatchSummaryPayload): HistoryEntry => {
+      const entry: HistoryEntry = {
+        id:
+          typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        endedAt: payload.endedAt,
+        durationSec: payload.durationSec,
+        mode: patientMode,
+        rescuers,
+        avgBpm: payload.avgBpm,
+        pctInTarget: null,
+        compressorSwitches: payload.compressorSwitches,
+        rhythmChecks: 0,
+        pulseChecks: 0,
+        epiDoses: 0,
+        drugLog: [],
+        causesConsidered: [],
+        notes: "",
+        source: "watch",
+      };
+      const next = [entry, ...history].slice(0, 5);
+      writeHistory(next);
+      return entry;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [history, patientMode, rescuers],
+  );
+
+  // ─── TODO(Capacitor): WatchConnectivity bridge ──────────────────────────────
+  // On a local dev machine after `npx cap add ios`, add a Capacitor plugin
+  // (a small Swift WCSessionDelegate) that receives the watch payload from
+  // Pass 8 §9 and forwards it into the web layer, e.g.:
+  //
+  //   // In the native iOS plugin, after WCSession didReceiveMessage:
+  //   self.bridge?.triggerJSEvent(eventName: "mednurseWatchSummary",
+  //                               target: "window",
+  //                               data: jsonString)
+  //
+  // Then this listener picks it up and calls addWatchSummary(payload).
+  // The PWA build never fires this event — it's a no-op in the browser.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const onMsg = (e: Event) => {
+      const detail = (e as CustomEvent<WatchSummaryPayload>).detail;
+      if (!detail || typeof detail.durationSec !== "number") return;
+      addWatchSummary(detail);
+    };
+    window.addEventListener("mednurseWatchSummary", onMsg as EventListener);
+    return () =>
+      window.removeEventListener("mednurseWatchSummary", onMsg as EventListener);
+  }, [addWatchSummary]);
+
   return (
     <Ctx.Provider
       value={{
