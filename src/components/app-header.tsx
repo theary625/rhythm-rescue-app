@@ -20,7 +20,7 @@ export function AppHeader() {
           <img
             src={logo}
             alt="MedNurse — ACLS Companion"
-            className="h-10 w-auto rounded-md"
+            className="h-14 w-auto rounded-md"
           />
         </Link>
 
