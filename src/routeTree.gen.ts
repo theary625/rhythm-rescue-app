@@ -9,14 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReferenceRouteImport } from './routes/reference'
+import { Route as CodeRouteImport } from './routes/code'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AlgorithmsIndexRouteImport } from './routes/algorithms.index'
-import { Route as AlgorithmsSlugRouteImport } from './routes/algorithms.$slug'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReferenceRoute = ReferenceRouteImport.update({
   id: '/reference',
   path: '/reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CodeRoute = CodeRouteImport.update({
+  id: '/code',
+  path: '/code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -24,58 +34,62 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AlgorithmsIndexRoute = AlgorithmsIndexRouteImport.update({
-  id: '/algorithms/',
-  path: '/algorithms/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AlgorithmsSlugRoute = AlgorithmsSlugRouteImport.update({
-  id: '/algorithms/$slug',
-  path: '/algorithms/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/code': typeof CodeRoute
   '/reference': typeof ReferenceRoute
-  '/algorithms/$slug': typeof AlgorithmsSlugRoute
-  '/algorithms/': typeof AlgorithmsIndexRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/code': typeof CodeRoute
   '/reference': typeof ReferenceRoute
-  '/algorithms/$slug': typeof AlgorithmsSlugRoute
-  '/algorithms': typeof AlgorithmsIndexRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/code': typeof CodeRoute
   '/reference': typeof ReferenceRoute
-  '/algorithms/$slug': typeof AlgorithmsSlugRoute
-  '/algorithms/': typeof AlgorithmsIndexRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/reference' | '/algorithms/$slug' | '/algorithms/'
+  fullPaths: '/' | '/code' | '/reference' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/reference' | '/algorithms/$slug' | '/algorithms'
-  id: '__root__' | '/' | '/reference' | '/algorithms/$slug' | '/algorithms/'
+  to: '/' | '/code' | '/reference' | '/settings'
+  id: '__root__' | '/' | '/code' | '/reference' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CodeRoute: typeof CodeRoute
   ReferenceRoute: typeof ReferenceRoute
-  AlgorithmsSlugRoute: typeof AlgorithmsSlugRoute
-  AlgorithmsIndexRoute: typeof AlgorithmsIndexRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reference': {
       id: '/reference'
       path: '/reference'
       fullPath: '/reference'
       preLoaderRoute: typeof ReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/code': {
+      id: '/code'
+      path: '/code'
+      fullPath: '/code'
+      preLoaderRoute: typeof CodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -85,29 +99,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/algorithms/': {
-      id: '/algorithms/'
-      path: '/algorithms'
-      fullPath: '/algorithms/'
-      preLoaderRoute: typeof AlgorithmsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/algorithms/$slug': {
-      id: '/algorithms/$slug'
-      path: '/algorithms/$slug'
-      fullPath: '/algorithms/$slug'
-      preLoaderRoute: typeof AlgorithmsSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CodeRoute: CodeRoute,
   ReferenceRoute: ReferenceRoute,
-  AlgorithmsSlugRoute: AlgorithmsSlugRoute,
-  AlgorithmsIndexRoute: AlgorithmsIndexRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
