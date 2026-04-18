@@ -15,7 +15,7 @@ export function AppHeader() {
   const location = useLocation();
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
+      <div className="mx-auto flex h-20 max-w-7xl items-center gap-6 px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
           <img
             src={logo}
