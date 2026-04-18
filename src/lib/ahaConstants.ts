@@ -131,3 +131,89 @@ export const REVERSIBLE_CAUSES: ReversibleCause[] = [
   { code: "T", label: "Thrombosis (pulmonary)", prompt: "Risk factors for PE? Recent surgery / immobility?" },
   { code: "T", label: "Thrombosis (coronary / MI)", prompt: "Recent chest pain? STEMI risk?" },
 ];
+
+// ─── Pass 10: Periarrest drug references (display only) ────────────────────────
+
+export const ADULT_PERIARREST_DRUGS: DrugRef[] = [
+  {
+    name: "Atropine",
+    indication: "Symptomatic bradycardia",
+    dose: "1 mg IV bolus",
+    interval: "Every 3–5 minutes as needed",
+    max: "Maximum 3 mg total",
+    notes:
+      "May be ineffective in heart-transplant patients. Avoid relying on atropine in 2nd-degree Type II or 3rd-degree AV block — pace early.",
+  },
+  {
+    name: "Adenosine",
+    indication: "Stable narrow-complex regular tachycardia (SVT)",
+    dose: "6 mg rapid IV push, follow with 20 mL saline flush, elevate arm",
+    interval: "Second dose 12 mg if no conversion",
+    max: "Maximum two doses",
+    notes:
+      "Brief asystole expected. Have monitor and resuscitation equipment ready. Avoid in polymorphic wide-complex tachycardia.",
+  },
+  {
+    name: "Diltiazem",
+    indication: "Rate control in stable atrial fibrillation / flutter",
+    dose: "15–20 mg IV over 2 minutes",
+    interval: "May repeat 20–25 mg in 15 minutes if needed",
+    max: "Per facility protocol",
+    notes: "Avoid in WPW with pre-excited atrial fibrillation. Hypotension precaution.",
+  },
+  {
+    name: "Procainamide",
+    indication: "Stable wide-complex tachycardia (monomorphic VT)",
+    dose:
+      "20–50 mg/min IV until arrhythmia suppressed, hypotension, QRS widens > 50%, or 17 mg/kg given",
+    interval: "Maintenance: 1–4 mg/min",
+    max: "17 mg/kg loading",
+    notes: "Avoid in prolonged QT or CHF.",
+  },
+  {
+    name: "Dopamine infusion",
+    indication: "Symptomatic bradycardia unresponsive to atropine; post-arrest hypotension",
+    dose: "5–20 mcg/kg/min IV infusion",
+    interval: "Titrate to effect",
+    max: "Per facility protocol",
+    notes:
+      "Display only — verify infusion rate with pump and order. Cognitive aid only.",
+  },
+  {
+    name: "Epinephrine infusion",
+    indication: "Symptomatic bradycardia unresponsive to atropine; post-arrest hypotension",
+    dose: "2–10 mcg/min IV infusion",
+    interval: "Titrate to effect",
+    max: "Per facility protocol",
+    notes:
+      "Different from arrest-dose epinephrine. Verify concentration and pump setup. Cognitive aid only.",
+  },
+];
+
+export const PEDIATRIC_PERIARREST_DRUGS: DrugRef[] = [
+  {
+    name: "Atropine (pediatric)",
+    indication: "Vagally mediated bradycardia or AV block",
+    dose: "0.02 mg/kg IV/IO",
+    interval: "May repeat once after 5 minutes",
+    minSingleDose: "0.1 mg minimum (avoid paradoxical bradycardia)",
+    maxSingleDose: "0.5 mg maximum single dose",
+    notes: "Not first-line in hypoxia-related bradycardia — treat hypoxia first.",
+  },
+  {
+    name: "Adenosine (pediatric)",
+    indication: "Pediatric SVT with adequate perfusion",
+    dose:
+      "First: 0.1 mg/kg rapid IV/IO push (max 6 mg). Second: 0.2 mg/kg (max 12 mg)",
+    interval: "May give second dose 1–2 minutes after first",
+    notes: "Push as close to the heart as possible, follow with rapid saline flush.",
+  },
+  {
+    name: "Procainamide (pediatric)",
+    indication:
+      "Pediatric wide-complex tachycardia (monomorphic VT) with pulse, expert consult",
+    dose: "15 mg/kg IV/IO over 30–60 minutes",
+    interval: "Single loading dose; expert consult for maintenance",
+    notes: "Do not give simultaneously with amiodarone.",
+  },
+];
