@@ -2,9 +2,10 @@ import { useApp } from "@/lib/app-context";
 import { Button } from "./Button";
 
 export function DisclaimerModal() {
-  const { disclaimerAccepted, acceptDisclaimer } = useApp();
+  const { disclaimerAccepted, acceptDisclaimer, onboardingComplete } = useApp();
 
   if (disclaimerAccepted) return null;
+  if (!onboardingComplete) return null;
 
   return (
     <div
