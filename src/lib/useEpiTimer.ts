@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "./app-context";
 import { EPI_CYCLE_MIN_MS, EPI_CYCLE_MAX_MS } from "./ahaConstants";
+import { speak, VOICE_LINES } from "./voice";
 
 export type EpiState = "idle" | "countdown" | "window" | "due";
 
