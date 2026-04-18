@@ -1,10 +1,13 @@
+import { useEffect } from "react";
 import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { AppProvider } from "@/lib/app-context";
+import { AppProvider, useApp } from "@/lib/app-context";
 import { DisclaimerModal } from "@/components/DisclaimerModal";
 import { Onboarding } from "@/components/Onboarding";
 import { Toaster } from "@/components/ui/sonner";
+import { captureInstallPrompt } from "@/lib/pwa";
+import { configureVoice } from "@/lib/voice";
 
 function NotFoundComponent() {
   return (
@@ -79,10 +82,27 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   return (
     <AppProvider>
+      <VoiceConfigBridge />
       <Outlet />
       <Onboarding />
       <DisclaimerModal />
       <Toaster position="top-center" />
     </AppProvider>
   );
+}
+
+function VoiceConfigBridge() {
+  const { voicePromptsEnabled, voiceVolume, preferredVoiceURI, hydrated } = useApp();
+  useEffect(() => {
+    captureInstallPrompt();
+  }, []);
+  useEffect(() => {
+    if (!hydrated) return;
+    configureVoice({
+      enabled: voicePromptsEnabled,
+      volume: voiceVolume,
+      preferredVoiceURI,
+    });
+  }, [voicePromptsEnabled, voiceVolume, preferredVoiceURI, hydrated]);
+  return null;
 }
