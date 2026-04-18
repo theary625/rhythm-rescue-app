@@ -27,6 +27,16 @@ export interface HistoryEntry {
   drugLog: Array<{ name: string; doseDisplay: string; offsetSec: number }>;
   causesConsidered: string[];
   notes: string;
+  /** Where this session was recorded. Defaults to "phone" for legacy entries. */
+  source?: "phone" | "watch";
+}
+
+/** Minimal payload sent by the watchOS companion app via WatchConnectivity. */
+export interface WatchSummaryPayload {
+  endedAt: number; // ms epoch
+  durationSec: number;
+  avgBpm: number | null;
+  compressorSwitches: number;
 }
 
 interface ActiveCode {
