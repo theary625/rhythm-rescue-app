@@ -1,7 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Activity, Heart, Stethoscope, BookOpen, Zap } from "lucide-react";
+import { Activity, Heart, Stethoscope, BookOpen } from "lucide-react";
 import { useMode } from "@/lib/mode";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/mednurse-logo.png";
 
 const NAV = [
   { to: "/", label: "Console", icon: Activity },
