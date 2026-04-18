@@ -121,6 +121,8 @@ interface AppState {
   // history
   history: HistoryEntry[];
   saveToHistory: (notes: string) => HistoryEntry;
+  /** Ingest a session that ran on the paired Apple Watch. */
+  addWatchSummary: (payload: WatchSummaryPayload) => HistoryEntry;
   deleteHistoryEntry: (id: string) => void;
   clearHistory: () => void;
   // hydration
