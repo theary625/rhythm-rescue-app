@@ -38,11 +38,13 @@ export function ShockableBranch({
   onLogEpi,
   onGoToDrugs,
   onGoToCauses,
+  isReferenceMode = false,
 }: {
   mode: PatientMode;
   onLogEpi: () => void;
   onGoToDrugs: () => void;
   onGoToCauses: () => void;
+  isReferenceMode?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -62,13 +64,15 @@ export function ShockableBranch({
       </StepCard>
 
       <StepCard title="Step 3 — Epinephrine 1 mg IV/IO">
-        <button
-          type="button"
-          onClick={onLogEpi}
-          className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand-red px-5 text-sm font-bold text-brand-white hover:brightness-110"
-        >
-          Log dose given
-        </button>
+        {!isReferenceMode && (
+          <button
+            type="button"
+            onClick={onLogEpi}
+            className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand-red px-5 text-sm font-bold text-brand-white hover:brightness-110"
+          >
+            Log dose given
+          </button>
+        )}
       </StepCard>
 
       <StepCard title="Step 4 — Consider amiodarone or lidocaine">
@@ -101,9 +105,11 @@ export function ShockableBranch({
 export function NonShockableBranch({
   onLogEpi,
   onGoToCauses,
+  isReferenceMode = false,
 }: {
   onLogEpi: () => void;
   onGoToCauses: () => void;
+  isReferenceMode?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -116,13 +122,15 @@ export function NonShockableBranch({
       </StepCard>
 
       <StepCard title="Step 2 — Epinephrine 1 mg IV/IO ASAP">
-        <button
-          type="button"
-          onClick={onLogEpi}
-          className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand-red px-5 text-sm font-bold text-brand-white hover:brightness-110"
-        >
-          Log dose given
-        </button>
+        {!isReferenceMode && (
+          <button
+            type="button"
+            onClick={onLogEpi}
+            className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand-red px-5 text-sm font-bold text-brand-white hover:brightness-110"
+          >
+            Log dose given
+          </button>
+        )}
       </StepCard>
 
       <StepCard title="Step 3 — Identify and treat reversible causes">
@@ -151,9 +159,11 @@ export function NonShockableBranch({
 export function AlgorithmTab({
   onGoToDrugs,
   onGoToCauses,
+  isReferenceMode = false,
 }: {
   onGoToDrugs: () => void;
   onGoToCauses: () => void;
+  isReferenceMode?: boolean;
 }) {
   const { code, patientMode, setRhythm, logEpi } = useApp();
 
@@ -190,9 +200,14 @@ export function AlgorithmTab({
       onLogEpi={logEpi}
       onGoToDrugs={onGoToDrugs}
       onGoToCauses={onGoToCauses}
+      isReferenceMode={isReferenceMode}
     />
   ) : (
-    <NonShockableBranch onLogEpi={logEpi} onGoToCauses={onGoToCauses} />
+    <NonShockableBranch
+      onLogEpi={logEpi}
+      onGoToCauses={onGoToCauses}
+      isReferenceMode={isReferenceMode}
+    />
   );
 }
 
