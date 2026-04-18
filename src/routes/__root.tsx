@@ -1,6 +1,10 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { ModeProvider } from "@/lib/mode";
+import { CodeProvider } from "@/lib/code-store";
+import { AppHeader } from "@/components/app-header";
+import { Link } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
@@ -29,21 +33,22 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "CodeBlue — ACLS Companion with CPR Metronome" },
+      {
+        name: "description",
+        content:
+          "Advanced Cardiac Life Support (ACLS) algorithms, 100–120 bpm CPR metronome, 2-minute cycle timer, epinephrine reminders and code event log.",
+      },
+      { name: "author", content: "CodeBlue" },
+      { property: "og:title", content: "CodeBlue — ACLS Companion" },
+      {
+        property: "og:description",
+        content: "ACLS algorithms with integrated CPR metronome and code timer.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -65,5 +70,14 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <ModeProvider>
+      <CodeProvider>
+        <div className="min-h-screen bg-background">
+          <AppHeader />
+          <Outlet />
+        </div>
+      </CodeProvider>
+    </ModeProvider>
+  );
 }
