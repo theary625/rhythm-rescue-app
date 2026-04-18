@@ -16,6 +16,7 @@ import { EpiPill } from "@/components/EpiPill";
 import { useApp } from "@/lib/app-context";
 import { useMetronome } from "@/lib/metronome";
 import { useEpiTimer } from "@/lib/useEpiTimer";
+import { cn } from "@/lib/utils";
 import {
   COMPRESSOR_SWITCH_INTERVAL_MS,
   DEPTH_TARGETS,
@@ -51,6 +52,11 @@ function CodeScreen() {
     haptics,
     patientMode,
     rescuers,
+    clickPitch,
+    clickVolume,
+    colorBlindMode,
+    recordBeatSample,
+    incrementPulseCheck,
   } = useApp();
 
   const [beatTick, setBeatTick] = useState(0);
@@ -60,7 +66,13 @@ function CodeScreen() {
   const [aclsOpen, setAclsOpen] = useState(false);
   const [rhythmChooserOpen, setRhythmChooserOpen] = useState(false);
   const lastSwitchSecondRef = useRef(0);
+  const lastSampleSecondRef = useRef(-1);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const bpmRef = useRef(code.bpm);
+
+  useEffect(() => {
+    bpmRef.current = code.bpm;
+  }, [code.bpm]);
 
   const epiTimer = useEpiTimer();
 
@@ -73,6 +85,8 @@ function CodeScreen() {
     bpm: code.bpm,
     soundEnabled: sound,
     hapticsEnabled: haptics,
+    pitch: clickPitch,
+    volume: clickVolume,
     onBeat: () => setBeatTick((t) => t + 1),
   });
 
@@ -133,14 +147,22 @@ function CodeScreen() {
   const handleTimerTick = useCallback(
     (elapsed: number) => {
       const sec = Math.floor(elapsed / 1000);
-      if (sec === 0 || sec === lastSwitchSecondRef.current) return;
+      if (sec === 0) return;
+
+      // Sample beatHistory once per second (only while metronome is running)
+      if (sec !== lastSampleSecondRef.current && metronome.isRunning) {
+        lastSampleSecondRef.current = sec;
+        recordBeatSample(bpmRef.current);
+      }
+
+      if (sec === lastSwitchSecondRef.current) return;
       if (sec % (COMPRESSOR_SWITCH_INTERVAL_MS / 1000) === 0) {
         lastSwitchSecondRef.current = sec;
         setBannerVisible(true);
         metronome.fireAccent(2);
       }
     },
-    [metronome],
+    [metronome, recordBeatSample],
   );
 
   const handleBpmChange = (v: string) => {
@@ -155,10 +177,12 @@ function CodeScreen() {
   };
   const handlePulseCheckResume = () => {
     setPulseCheckOpen(false);
+    incrementPulseCheck();
     metronome.start();
   };
   const handlePulseCheckComplete = () => {
     setPulseCheckOpen(false);
+    incrementPulseCheck();
     metronome.start();
     toast("Resume compressions. You're ready.", {
       style: { background: "#E63946", color: "#FFFFFF", border: "none" },
@@ -196,7 +220,10 @@ function CodeScreen() {
 
   return (
     <div
-      className="min-h-screen bg-brand-navy text-brand-white"
+      className={cn(
+        "min-h-screen bg-brand-navy text-brand-white",
+        colorBlindMode && "ring-2 ring-dotted ring-brand-red ring-offset-0",
+      )}
       style={{
         paddingTop: "env(safe-area-inset-top)",
         paddingBottom: "env(safe-area-inset-bottom)",
@@ -221,6 +248,7 @@ function CodeScreen() {
         visible={bannerVisible}
         onDismiss={handleBannerDismiss}
         onRhythmCheck={handleBannerRhythmCheck}
+        colorBlind={colorBlindMode}
       />
 
       {epiTimer.state !== "idle" && (
@@ -230,7 +258,12 @@ function CodeScreen() {
       )}
 
       <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-4">
-        <PulseCircle bpm={code.bpm} running={metronome.isRunning} beatTick={beatTick} />
+        <PulseCircle
+          bpm={code.bpm}
+          running={metronome.isRunning}
+          beatTick={beatTick}
+          colorBlind={colorBlindMode}
+        />
 
         <div>
           <SegmentedControl options={BPM_PRESETS} value={bpmStr} onChange={handleBpmChange} />
