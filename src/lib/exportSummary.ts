@@ -1,5 +1,6 @@
 import type { HistoryEntry, PatientMode, RescuerCount } from "./app-context";
 import { REVERSIBLE_CAUSES } from "./ahaConstants";
+import { sharePlain } from "./platform";
 
 function fmtMmSs(totalSec: number): string {
   const m = Math.floor(totalSec / 60);
@@ -99,17 +100,9 @@ export async function exportShare(
   entry: HistoryEntry,
 ): Promise<"shared" | "copied" | "failed"> {
   const text = buildSummary(entry);
-  const nav = navigator as Navigator & {
-    share?: (data: { title?: string; text?: string }) => Promise<void>;
-  };
-  if (typeof nav.share === "function") {
-    try {
-      await nav.share({ title: "MedNurse CodeAssist — Code Summary", text });
-      return "shared";
-    } catch {
-      // user canceled or share failed; fall through to copy
-    }
-  }
+  const result = await sharePlain("MedNurse CodeAssist — Code Summary", text);
+  if (result === "shared" || result === "copied") return result;
+  // Last-resort fallback: legacy execCommand path inside exportCopy.
   const r = await exportCopy(entry);
   return r === "copied" ? "copied" : "failed";
 }

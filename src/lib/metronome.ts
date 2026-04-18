@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { beatHaptic, urgentHaptic } from "./platform";
 
 export type ClickPitch = "low" | "mid" | "high";
 
@@ -114,12 +115,8 @@ export function useMetronome(opts: Options) {
     });
 
     if (fired.length > 0) {
-      if (hapticsRef.current && typeof navigator !== "undefined" && "vibrate" in navigator) {
-        try {
-          navigator.vibrate(20);
-        } catch {
-          /* ignore */
-        }
+      if (hapticsRef.current) {
+        void beatHaptic();
       }
       const last = fired[fired.length - 1];
       onBeatRef.current?.(last.index);
@@ -156,12 +153,8 @@ export function useMetronome(opts: Options) {
 
   const fireAccent = useCallback((count = 2) => {
     accentRemainingRef.current = count;
-    if (hapticsRef.current && typeof navigator !== "undefined" && "vibrate" in navigator) {
-      try {
-        navigator.vibrate(200);
-      } catch {
-        /* ignore */
-      }
+    if (hapticsRef.current) {
+      void urgentHaptic();
     }
   }, []);
 

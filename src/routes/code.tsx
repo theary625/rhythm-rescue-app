@@ -25,6 +25,7 @@ import {
   clearMediaSessionHandlers,
   setPlaybackState,
 } from "@/lib/mediaSession";
+import { keepAwakeOn, keepAwakeOff, isAwakeHeld } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 import {
   COMPRESSOR_SWITCH_INTERVAL_MS,
@@ -82,7 +83,6 @@ function CodeScreen() {
   const [micActive, setMicActive] = useState(false);
   const lastSwitchSecondRef = useRef(0);
   const lastSampleSecondRef = useRef(-1);
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const bpmRef = useRef(code.bpm);
 
   const isCompact = sessionCompact ?? compactMode;
@@ -120,33 +120,16 @@ function CodeScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Wake Lock
+  // Keep screen on during an active code (web Wake Lock today; Capacitor KeepAwake on native).
   useEffect(() => {
-    let cancelled = false;
-    const request = async () => {
-      try {
-        const nav = navigator as Navigator & {
-          wakeLock?: { request: (t: "screen") => Promise<WakeLockSentinel> };
-        };
-        if (nav.wakeLock?.request) {
-          const lock = await nav.wakeLock.request("screen");
-          if (cancelled) void lock.release();
-          else wakeLockRef.current = lock;
-        }
-      } catch {
-        /* ignore */
-      }
-    };
-    void request();
+    void keepAwakeOn();
     const onVis = () => {
-      if (document.visibilityState === "visible" && !wakeLockRef.current) void request();
+      if (document.visibilityState === "visible" && !isAwakeHeld()) void keepAwakeOn();
     };
     document.addEventListener("visibilitychange", onVis);
     return () => {
-      cancelled = true;
       document.removeEventListener("visibilitychange", onVis);
-      void wakeLockRef.current?.release();
-      wakeLockRef.current = null;
+      void keepAwakeOff();
     };
   }, []);
 
@@ -215,8 +198,7 @@ function CodeScreen() {
 
   const handleStopConfirm = useCallback(() => {
     metronome.stop();
-    void wakeLockRef.current?.release();
-    wakeLockRef.current = null;
+    void keepAwakeOff();
     speak(VOICE_LINES.codeEnded);
     stopCode();
     setStopOpen(false);
