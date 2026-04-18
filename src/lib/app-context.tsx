@@ -496,6 +496,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         incrementPulseCheck,
         history,
         saveToHistory,
+        addWatchSummary,
         deleteHistoryEntry,
         clearHistory,
         hydrated,
