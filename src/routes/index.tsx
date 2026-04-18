@@ -4,6 +4,7 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/Button";
 import { useApp, type PatientMode, type RescuerCount } from "@/lib/app-context";
 
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [

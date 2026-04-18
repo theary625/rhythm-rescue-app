@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ReferenceRouteImport } from './routes/reference'
+import { Route as DebriefRouteImport } from './routes/debrief'
 import { Route as CodeRouteImport } from './routes/code'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -22,6 +23,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ReferenceRoute = ReferenceRouteImport.update({
   id: '/reference',
   path: '/reference',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DebriefRoute = DebriefRouteImport.update({
+  id: '/debrief',
+  path: '/debrief',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CodeRoute = CodeRouteImport.update({
@@ -38,12 +44,14 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/code': typeof CodeRoute
+  '/debrief': typeof DebriefRoute
   '/reference': typeof ReferenceRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/code': typeof CodeRoute
+  '/debrief': typeof DebriefRoute
   '/reference': typeof ReferenceRoute
   '/settings': typeof SettingsRoute
 }
@@ -51,20 +59,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/code': typeof CodeRoute
+  '/debrief': typeof DebriefRoute
   '/reference': typeof ReferenceRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/code' | '/reference' | '/settings'
+  fullPaths: '/' | '/code' | '/debrief' | '/reference' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/code' | '/reference' | '/settings'
-  id: '__root__' | '/' | '/code' | '/reference' | '/settings'
+  to: '/' | '/code' | '/debrief' | '/reference' | '/settings'
+  id: '__root__' | '/' | '/code' | '/debrief' | '/reference' | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CodeRoute: typeof CodeRoute
+  DebriefRoute: typeof DebriefRoute
   ReferenceRoute: typeof ReferenceRoute
   SettingsRoute: typeof SettingsRoute
 }
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
       path: '/reference'
       fullPath: '/reference'
       preLoaderRoute: typeof ReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/debrief': {
+      id: '/debrief'
+      path: '/debrief'
+      fullPath: '/debrief'
+      preLoaderRoute: typeof DebriefRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/code': {
@@ -105,9 +122,19 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CodeRoute: CodeRoute,
+  DebriefRoute: DebriefRoute,
   ReferenceRoute: ReferenceRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
