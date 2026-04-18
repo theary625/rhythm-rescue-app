@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Watch } from "lucide-react";
 import { toast } from "sonner";
 import { useApp, type HistoryEntry } from "@/lib/app-context";
 import { Button } from "@/components/Button";
