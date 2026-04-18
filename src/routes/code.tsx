@@ -3,15 +3,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { MedNurseLogo } from "@/brand/MedNurseLogo";
 import { PulseCircle } from "@/components/PulseCircle";
-import { CodeTimer, formatElapsed } from "@/components/CodeTimer";
+import { CodeTimer } from "@/components/CodeTimer";
 import { StatCard } from "@/components/StatCard";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Button } from "@/components/Button";
 import { CompressorSwitchBanner } from "@/components/CompressorSwitchBanner";
 import { PulseCheckOverlay } from "@/components/PulseCheckOverlay";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { AclsOverlay } from "@/components/AclsOverlay";
+import { RhythmChooserSheet } from "@/components/RhythmChooserSheet";
+import { EpiPill } from "@/components/EpiPill";
 import { useApp } from "@/lib/app-context";
 import { useMetronome } from "@/lib/metronome";
+import { useEpiTimer } from "@/lib/useEpiTimer";
 import {
   COMPRESSOR_SWITCH_INTERVAL_MS,
   DEPTH_TARGETS,
@@ -22,7 +26,7 @@ export const Route = createFileRoute("/code")({
   head: () => ({
     meta: [
       { title: "Code — MedNurse CodeAssist" },
-      { name: "description", content: "Active code screen with CPR metronome and timer." },
+      { name: "description", content: "Active code screen with CPR metronome and ACLS reference." },
     ],
   }),
   component: CodeScreen,
@@ -42,6 +46,7 @@ function CodeScreen() {
     stopCode,
     setBpm,
     incrementCompressorSwitch,
+    setRhythm,
     sound,
     haptics,
     patientMode,
@@ -52,10 +57,13 @@ function CodeScreen() {
   const [bannerVisible, setBannerVisible] = useState(false);
   const [pulseCheckOpen, setPulseCheckOpen] = useState(false);
   const [stopOpen, setStopOpen] = useState(false);
+  const [aclsOpen, setAclsOpen] = useState(false);
+  const [rhythmChooserOpen, setRhythmChooserOpen] = useState(false);
   const lastSwitchSecondRef = useRef(0);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
-  // Auto-start the code session when arriving here directly
+  const epiTimer = useEpiTimer();
+
   useEffect(() => {
     if (!code.isActive) startCode();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,7 +76,6 @@ function CodeScreen() {
     onBeat: () => setBeatTick((t) => t + 1),
   });
 
-  // Start metronome on first user interaction (browsers require gesture)
   const startedRef = useRef(false);
   const handleAnyClick = useCallback(() => {
     if (!startedRef.current) {
@@ -92,11 +99,8 @@ function CodeScreen() {
         };
         if (nav.wakeLock?.request) {
           const lock = await nav.wakeLock.request("screen");
-          if (cancelled) {
-            void lock.release();
-          } else {
-            wakeLockRef.current = lock;
-          }
+          if (cancelled) void lock.release();
+          else wakeLockRef.current = lock;
         }
       } catch {
         /* ignore */
@@ -126,7 +130,6 @@ function CodeScreen() {
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
-  // Compressor switch trigger
   const handleTimerTick = useCallback(
     (elapsed: number) => {
       const sec = Math.floor(elapsed / 1000);
@@ -176,10 +179,19 @@ function CodeScreen() {
     incrementCompressorSwitch();
   };
 
+  const handleBannerRhythmCheck = () => {
+    setRhythmChooserOpen(true);
+  };
+
+  const handleRhythmSelect = (r: "shockable" | "non-shockable") => {
+    setRhythm(r);
+    setRhythmChooserOpen(false);
+    setAclsOpen(true);
+  };
+
   const ratio = RATIOS[patientMode][rescuers];
   const depth = DEPTH_TARGETS[patientMode];
   const modeLabel = `${patientMode[0].toUpperCase()}${patientMode.slice(1)} · ${rescuers === "two" ? "Two" : "Single"}`;
-
   const bpmStr = String(code.bpm);
 
   return (
@@ -205,17 +217,23 @@ function CodeScreen() {
         </div>
       </header>
 
-      <CompressorSwitchBanner visible={bannerVisible} onDismiss={handleBannerDismiss} />
+      <CompressorSwitchBanner
+        visible={bannerVisible}
+        onDismiss={handleBannerDismiss}
+        onRhythmCheck={handleBannerRhythmCheck}
+      />
+
+      {epiTimer.state !== "idle" && (
+        <div className="flex justify-end px-4 pt-2">
+          <EpiPill timer={epiTimer} />
+        </div>
+      )}
 
       <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-4">
         <PulseCircle bpm={code.bpm} running={metronome.isRunning} beatTick={beatTick} />
 
         <div>
-          <SegmentedControl
-            options={BPM_PRESETS}
-            value={bpmStr}
-            onChange={handleBpmChange}
-          />
+          <SegmentedControl options={BPM_PRESETS} value={bpmStr} onChange={handleBpmChange} />
           <p className="mt-2 text-center text-xs text-brand-white/60">
             AHA target: 100–120 compressions per minute.
           </p>
@@ -227,9 +245,12 @@ function CodeScreen() {
           <StatCard label="Recoil" value="Full recoil between compressions." />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <Button variant="secondary" size="lg" onClick={handlePulseCheckOpen}>
             Pulse check
+          </Button>
+          <Button variant="secondary" size="lg" onClick={() => setAclsOpen(true)}>
+            ACLS
           </Button>
           <Button variant="primary" size="lg" onClick={() => setStopOpen(true)}>
             Stop code
@@ -246,6 +267,14 @@ function CodeScreen() {
         onResume={handlePulseCheckResume}
         onComplete={handlePulseCheckComplete}
       />
+
+      <RhythmChooserSheet
+        open={rhythmChooserOpen}
+        onClose={() => setRhythmChooserOpen(false)}
+        onSelect={handleRhythmSelect}
+      />
+
+      <AclsOverlay open={aclsOpen} onClose={() => setAclsOpen(false)} />
 
       <ConfirmModal
         open={stopOpen}
