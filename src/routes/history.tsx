@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Watch } from "lucide-react";
 import { toast } from "sonner";
 import { useApp, type HistoryEntry } from "@/lib/app-context";
 import { Button } from "@/components/Button";
@@ -72,8 +72,14 @@ function HistoryScreen() {
               className="block w-full rounded-2xl bg-white p-4 text-left shadow-sm hover:bg-brand-navy/5"
             >
               <div className="flex items-baseline justify-between">
-                <div className="text-sm font-bold text-brand-navy">
-                  {new Date(e.endedAt).toLocaleString()}
+                <div className="flex items-center gap-1.5 text-sm font-bold text-brand-navy">
+                  {e.source === "watch" && (
+                    <Watch
+                      className="h-3.5 w-3.5 text-brand-navy/70"
+                      aria-label="Recorded on Apple Watch"
+                    />
+                  )}
+                  <span>{new Date(e.endedAt).toLocaleString()}</span>
                 </div>
                 <div className="font-mono text-base font-semibold tabular-nums text-brand-navy">
                   {fmtMmSs(e.durationSec)}
