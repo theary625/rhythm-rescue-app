@@ -36,8 +36,13 @@ const RESCUER_OPTIONS: { value: RescuerCount; label: string }[] = [
 ];
 
 function HomeScreen() {
-  const { patientMode, setPatientMode, rescuers, setRescuers } = useApp();
+  const { patientMode, setPatientMode, rescuers, setRescuers, startCode } = useApp();
   const navigate = useNavigate();
+
+  const handleStart = () => {
+    startCode();
+    navigate({ to: "/code" });
+  };
 
   return (
     <ScreenShell>
@@ -70,7 +75,7 @@ function HomeScreen() {
               variant="primary"
               size="lg"
               fullWidth
-              onClick={() => navigate({ to: "/code" })}
+              onClick={handleStart}
             >
               Start Code
             </Button>

@@ -3,6 +3,7 @@ import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/r
 import appCss from "../styles.css?url";
 import { AppProvider } from "@/lib/app-context";
 import { DisclaimerModal } from "@/components/DisclaimerModal";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
