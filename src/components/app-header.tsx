@@ -17,15 +17,11 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-emergency text-destructive-foreground shadow-card">
-            <Zap className="h-5 w-5" strokeWidth={2.5} />
-          </div>
-          <div className="leading-tight">
-            <div className="text-[15px] font-bold tracking-tight">CodeBlue</div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              ACLS Companion
-            </div>
-          </div>
+          <img
+            src={logo}
+            alt="MedNurse — ACLS Companion"
+            className="h-10 w-auto rounded-md"
+          />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
