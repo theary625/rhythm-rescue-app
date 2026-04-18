@@ -51,6 +51,12 @@ interface Preferences {
   clickPitch: ClickPitch;
   clickVolume: number;
   colorBlindMode: boolean;
+  // Pass 5
+  voicePromptsEnabled: boolean;
+  voiceVolume: number;
+  preferredVoiceURI: string | null;
+  handsFreeEnabled: boolean;
+  compactMode: boolean;
 }
 
 interface AppState {
@@ -71,6 +77,16 @@ interface AppState {
   setClickVolume: (n: number) => void;
   colorBlindMode: boolean;
   setColorBlindMode: (b: boolean) => void;
+  voicePromptsEnabled: boolean;
+  setVoicePromptsEnabled: (b: boolean) => void;
+  voiceVolume: number;
+  setVoiceVolume: (n: number) => void;
+  preferredVoiceURI: string | null;
+  setPreferredVoiceURI: (s: string | null) => void;
+  handsFreeEnabled: boolean;
+  setHandsFreeEnabled: (b: boolean) => void;
+  compactMode: boolean;
+  setCompactMode: (b: boolean) => void;
   resetPreferences: () => void;
   // disclaimer + onboarding
   disclaimerAccepted: boolean;
@@ -145,6 +161,11 @@ const DEFAULT_PREFS: Preferences = {
   clickPitch: "mid",
   clickVolume: 60,
   colorBlindMode: false,
+  voicePromptsEnabled: false,
+  voiceVolume: 70,
+  preferredVoiceURI: null,
+  handsFreeEnabled: false,
+  compactMode: false,
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -199,6 +220,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setClickPitch = (p: ClickPitch) => writePrefs({ ...prefs, clickPitch: p });
   const setClickVolume = (n: number) => writePrefs({ ...prefs, clickVolume: n });
   const setColorBlindMode = (b: boolean) => writePrefs({ ...prefs, colorBlindMode: b });
+  const setVoicePromptsEnabled = (b: boolean) =>
+    writePrefs({ ...prefs, voicePromptsEnabled: b });
+  const setVoiceVolume = (n: number) => writePrefs({ ...prefs, voiceVolume: n });
+  const setPreferredVoiceURI = (s: string | null) =>
+    writePrefs({ ...prefs, preferredVoiceURI: s });
+  const setHandsFreeEnabled = (b: boolean) => writePrefs({ ...prefs, handsFreeEnabled: b });
+  const setCompactMode = (b: boolean) => writePrefs({ ...prefs, compactMode: b });
   const resetPreferences = () => {
     writePrefs(DEFAULT_PREFS);
     setPatientMode("adult");
@@ -371,6 +399,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setClickVolume,
         colorBlindMode: prefs.colorBlindMode,
         setColorBlindMode,
+        voicePromptsEnabled: prefs.voicePromptsEnabled,
+        setVoicePromptsEnabled,
+        voiceVolume: prefs.voiceVolume,
+        setVoiceVolume,
+        preferredVoiceURI: prefs.preferredVoiceURI,
+        setPreferredVoiceURI,
+        handsFreeEnabled: prefs.handsFreeEnabled,
+        setHandsFreeEnabled,
+        compactMode: prefs.compactMode,
+        setCompactMode,
         resetPreferences,
         disclaimerAccepted: hydrated ? disclaimerAccepted : true,
         acceptDisclaimer,
