@@ -47,8 +47,20 @@ export function ShockableBranch({
   onGoToCauses: () => void;
   isReferenceMode?: boolean;
 }) {
+  const shockableSteps = [
+    `V-F or pulseless V-T. Step 1: defibrillate. ${
+      mode === "adult"
+        ? `Adult biphasic ${DEFIB_ENERGIES.adult.biphasic}, monophasic ${DEFIB_ENERGIES.adult.monophasic}, subsequent shocks ${DEFIB_ENERGIES.adult.subsequent}.`
+        : `Pediatric first shock ${DEFIB_ENERGIES.pediatric.first}, second shock ${DEFIB_ENERGIES.pediatric.second}, subsequent ${DEFIB_ENERGIES.pediatric.subsequent}.`
+    } Clear, charge, shock, then resume compressions immediately.`,
+    "Step 2: resume C-P-R for 2 minutes. High-quality compressions. Minimize interruptions.",
+    "Step 3: epinephrine 1 milligram I-V or I-O.",
+    "Step 4: consider amiodarone or lidocaine.",
+    "Step 5: identify and treat reversible causes — the H's and T's.",
+  ];
   return (
     <div className="space-y-3">
+      {isReferenceMode && <WalkthroughBar steps={shockableSteps} />}
       <h2 className="text-2xl font-bold tracking-tight">VF / pulseless VT</h2>
 
       <StepCard title="Step 1 — Defibrillate">
@@ -112,8 +124,15 @@ export function NonShockableBranch({
   onGoToCauses: () => void;
   isReferenceMode?: boolean;
 }) {
+  const nonShockableSteps = [
+    "Asystole or P-E-A. Step 1: continue high-quality C-P-R. Minimize interruptions. Full chest recoil.",
+    "Step 2: epinephrine 1 milligram I-V or I-O as soon as possible.",
+    "Step 3: identify and treat reversible causes.",
+    "Step 4: reassess rhythm at the next 2-minute check. Pulse check 10 seconds or less. Resume immediately.",
+  ];
   return (
     <div className="space-y-3">
+      {isReferenceMode && <WalkthroughBar steps={nonShockableSteps} />}
       <h2 className="text-2xl font-bold tracking-tight">Asystole / PEA</h2>
 
       <StepCard title="Step 1 — Continue high-quality CPR">
