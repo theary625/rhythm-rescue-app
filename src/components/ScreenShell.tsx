@@ -30,12 +30,12 @@ export function ScreenShell({
       }}
     >
       {showTopBar && (
-        <header className="flex h-14 items-center justify-between px-5">
-          <Link to="/" aria-label="MedNurse home">
+        <header className="flex h-16 items-center justify-between px-5">
+          <Link to="/" aria-label="MedNurse home" className="flex items-center">
             <MedNurseLogo
               variant="full"
               tone={isSoft ? "dark" : "light"}
-              className="h-6 w-auto"
+              className="h-10 w-auto"
             />
           </Link>
           <Link
