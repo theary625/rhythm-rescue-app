@@ -4,7 +4,14 @@ import { TriageDecision } from "./TriageDecision";
 import { WalkthroughBar } from "./SpeakControls";
 
 type Stability = null | "unstable" | "stable";
-type Width = null | "narrow-regular" | "narrow-irregular" | "wide-regular" | "wide-irregular";
+type Width =
+  | null
+  | "narrow"
+  | "wide"
+  | "narrow-regular"
+  | "narrow-irregular"
+  | "wide-regular"
+  | "wide-irregular";
 
 const TRIAGE_INTRO =
   "Adult tachycardia with a pulse. First, decide if the patient is stable or unstable. Unstable means hypotension, acute altered mental status, signs of shock, ischemic chest discomfort, or acute heart failure caused by the tachycardia.";
@@ -20,6 +27,9 @@ function unstableSteps(): string[] {
 function stableSteps(width: Width): string[] {
   const intro = "Patient is stable. Determine the QRS width. Narrow is less than 0.12 seconds; wide is 0.12 or greater.";
   if (!width) return [intro];
+  if (width === "narrow" || width === "wide") {
+    return [intro];
+  }
   if (width === "narrow-regular") {
     return [
       intro,
@@ -119,12 +129,12 @@ export function AdultTachycardiaPanel({
             prompt="Narrow complex (QRS < 0.12 s) or wide?"
             leftLabel="Narrow"
             rightLabel="Wide"
-            onSelect={(c) =>
-              setWidth(c === "left" ? "narrow-regular" : "wide-regular")
-            }
+            onSelect={(c) => setWidth(c === "left" ? "narrow" : "wide")}
           />
 
-          {(width === "narrow-regular" || width === "narrow-irregular") && (
+          {(width === "narrow" ||
+            width === "narrow-regular" ||
+            width === "narrow-irregular") && (
             <TriageDecision
               prompt="Regular or irregular?"
               leftLabel="Regular (likely SVT)"
@@ -135,7 +145,9 @@ export function AdultTachycardiaPanel({
             />
           )}
 
-          {(width === "wide-regular" || width === "wide-irregular") && (
+          {(width === "wide" ||
+            width === "wide-regular" ||
+            width === "wide-irregular") && (
             <TriageDecision
               prompt="Regular or irregular?"
               leftLabel="Regular"
