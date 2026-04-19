@@ -27,6 +27,9 @@ function unstableSteps(): string[] {
 function stableSteps(width: Width): string[] {
   const intro = "Patient is stable. Determine the QRS width. Narrow is less than 0.12 seconds; wide is 0.12 or greater.";
   if (!width) return [intro];
+  if (width === "narrow" || width === "wide") {
+    return [intro];
+  }
   if (width === "narrow-regular") {
     return [
       intro,
