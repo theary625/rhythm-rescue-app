@@ -1,5 +1,6 @@
 import { useApp, type PatientMode } from "@/lib/app-context";
 import { DEFIB_ENERGIES } from "@/lib/ahaConstants";
+import { WalkthroughBar } from "./algorithms/SpeakControls";
 
 export function DefibEnergyCard({ mode }: { mode: PatientMode }) {
   if (mode === "adult") {
