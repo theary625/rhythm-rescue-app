@@ -1,9 +1,49 @@
 import { useState } from "react";
 import { PanelFooter, QuickLinkButton, StepCard } from "./StepCard";
 import { TriageDecision } from "./TriageDecision";
+import { WalkthroughBar } from "./SpeakControls";
 
 type Perfusion = null | "inadequate" | "adequate";
 type Branch = null | "narrow-sinus" | "narrow-svt" | "wide";
+
+const TRIAGE_INTRO =
+  "Pediatric tachycardia with a pulse. First decide: is perfusion adequate or inadequate?";
+
+function buildWalkthrough(perf: Perfusion, branch: Branch): string[] {
+  if (perf === "inadequate") {
+    return [
+      TRIAGE_INTRO,
+      "Perfusion is inadequate. Perform synchronized cardioversion. 0.5 to 1 joule per kilogram for the first dose. Increase to 2 joules per kilogram if no response. Sedate if possible, but do not delay cardioversion for sedation if unstable.",
+    ];
+  }
+  if (perf === "adequate") {
+    const intro2 =
+      "Perfusion is adequate. Determine QRS width. Narrow is 0.09 seconds or less. Wide is greater than 0.09 seconds.";
+    if (branch === "narrow-sinus") {
+      return [
+        TRIAGE_INTRO,
+        intro2,
+        "Likely sinus tachycardia. Heart rate usually less than 220 in infants and less than 180 in children, with an identifiable cause. Treat the cause.",
+      ];
+    }
+    if (branch === "narrow-svt") {
+      return [
+        TRIAGE_INTRO,
+        intro2,
+        "Likely supraventricular tachycardia. Heart rate usually 220 or greater in infants, 180 or greater in children. Abrupt onset and offset. P waves absent or abnormal. Try vagal maneuvers — no carotid massage in pediatrics. Adenosine 0.1 milligrams per kilogram I-V or I-O rapid push, maximum first dose 6 milligrams. Second dose 0.2 milligrams per kilogram, maximum 12 milligrams. Synchronized cardioversion if adenosine fails and the patient becomes unstable.",
+      ];
+    }
+    if (branch === "wide") {
+      return [
+        TRIAGE_INTRO,
+        intro2,
+        "Wide complex, likely ventricular tachycardia with pulse. Expert consultation strongly recommended. Amiodarone 5 milligrams per kilogram I-V or I-O over 20 to 60 minutes, or procainamide 15 milligrams per kilogram I-V or I-O over 30 to 60 minutes. Do not give both.",
+      ];
+    }
+    return [TRIAGE_INTRO, intro2];
+  }
+  return [TRIAGE_INTRO];
+}
 
 export function PediatricTachycardiaPanel({
   onGoToDrugs,
@@ -20,6 +60,8 @@ export function PediatricTachycardiaPanel({
         Pediatric Tachycardia — With Pulse
       </h2>
 
+      <WalkthroughBar steps={buildWalkthrough(perf, branch)} />
+
       <TriageDecision
         prompt="Adequate or inadequate perfusion?"
         leftLabel="Inadequate"
@@ -32,7 +74,10 @@ export function PediatricTachycardiaPanel({
 
       {perf === "inadequate" && (
         <>
-          <StepCard title="Synchronized cardioversion">
+          <StepCard
+            title="Synchronized cardioversion"
+            speak="Synchronized cardioversion. 0.5 to 1 joule per kilogram for the first dose. Increase to 2 joules per kilogram if no response. Sedate if possible. Do not delay cardioversion for sedation if unstable."
+          >
             <ul className="list-disc space-y-1 pl-5">
               <li>0.5–1 J/kg first dose, increase to 2 J/kg if no response.</li>
               <li>
@@ -76,7 +121,10 @@ export function PediatricTachycardiaPanel({
 
           {branch === "narrow-sinus" && (
             <>
-              <StepCard title="Likely sinus tachycardia">
+              <StepCard
+                title="Likely sinus tachycardia"
+                speak="Likely sinus tachycardia. Heart rate usually less than 220 in infants, less than 180 in children, with an identifiable cause. Treat the cause."
+              >
                 <p>
                   HR usually &lt; 220 in infants, &lt; 180 in children, with
                   identifiable cause. Treat the cause.
@@ -88,7 +136,10 @@ export function PediatricTachycardiaPanel({
 
           {branch === "narrow-svt" && (
             <>
-              <StepCard title="Likely SVT">
+              <StepCard
+                title="Likely SVT"
+                speak="Likely S-V-T. Heart rate usually 220 or greater in infants, 180 or greater in children. Vagal maneuvers — no carotid massage in pediatrics. Adenosine 0.1 milligrams per kilogram I-V or I-O rapid push; maximum first dose 6 milligrams. Second dose 0.2 milligrams per kilogram, maximum 12 milligrams. Synchronized cardioversion if adenosine fails and the patient becomes unstable."
+              >
                 <ul className="list-disc space-y-1 pl-5">
                   <li>
                     HR usually ≥ 220 in infants, ≥ 180 in children. Abrupt
@@ -112,7 +163,10 @@ export function PediatricTachycardiaPanel({
 
           {branch === "wide" && (
             <>
-              <StepCard title="Wide complex (likely VT with pulse)">
+              <StepCard
+                title="Wide complex (likely VT with pulse)"
+                speak="Wide complex, likely ventricular tachycardia with pulse. Expert consultation strongly recommended. Amiodarone 5 milligrams per kilogram I-V or I-O over 20 to 60 minutes, or procainamide 15 milligrams per kilogram I-V or I-O over 30 to 60 minutes. Do not give both."
+              >
                 <ul className="list-disc space-y-1 pl-5">
                   <li>Expert consultation strongly recommended.</li>
                   <li>

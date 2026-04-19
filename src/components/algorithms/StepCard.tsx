@@ -1,10 +1,27 @@
 import type { ReactNode } from "react";
+import { StepSpeakButton } from "./SpeakControls";
 
-export function StepCard({ title, children }: { title: string; children?: ReactNode }) {
+export function StepCard({
+  title,
+  children,
+  speak,
+}: {
+  title: string;
+  children?: ReactNode;
+  /** Optional spoken version of this step (used by the per-step speaker icon). */
+  speak?: string;
+}) {
   return (
     <div className="rounded-2xl bg-brand-accent/15 p-4">
-      <div className="text-sm font-bold tracking-tight text-brand-white">{title}</div>
-      {children && <div className="mt-2 space-y-2 text-sm text-brand-white/85">{children}</div>}
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-sm font-bold tracking-tight text-brand-white">
+          {title}
+        </div>
+        {speak && <StepSpeakButton text={speak} label={`Read ${title} aloud`} />}
+      </div>
+      {children && (
+        <div className="mt-2 space-y-2 text-sm text-brand-white/85">{children}</div>
+      )}
     </div>
   );
 }
