@@ -4,7 +4,14 @@ import { TriageDecision } from "./TriageDecision";
 import { WalkthroughBar } from "./SpeakControls";
 
 type Stability = null | "unstable" | "stable";
-type Width = null | "narrow-regular" | "narrow-irregular" | "wide-regular" | "wide-irregular";
+type Width =
+  | null
+  | "narrow"
+  | "wide"
+  | "narrow-regular"
+  | "narrow-irregular"
+  | "wide-regular"
+  | "wide-irregular";
 
 const TRIAGE_INTRO =
   "Adult tachycardia with a pulse. First, decide if the patient is stable or unstable. Unstable means hypotension, acute altered mental status, signs of shock, ischemic chest discomfort, or acute heart failure caused by the tachycardia.";
