@@ -1,3 +1,5 @@
+import logoUrl from "@/assets/mednurse-logo.png";
+
 type Variant = "full" | "icon";
 type Tone = "light" | "dark";
 
@@ -7,43 +9,37 @@ interface Props {
   className?: string;
 }
 
-export function MedNurseLogo({ variant = "full", tone = "light", className }: Props) {
-  const fill = tone === "light" ? "#FFFFFF" : "#1A2744";
-
+/**
+ * MedNurse brand logo. Renders the official artwork.
+ * `variant` and `tone` are accepted for API compatibility; the artwork is
+ * pre-rendered so tone has no effect. For icon-only contexts we crop to the
+ * heart mark via object-fit.
+ */
+export function MedNurseLogo({ variant = "full", className }: Props) {
   if (variant === "icon") {
     return (
-      <svg
-        viewBox="0 0 32 32"
-        xmlns="http://www.w3.org/2000/svg"
+      <span
         className={className}
+        style={{
+          display: "inline-block",
+          aspectRatio: "1 / 1",
+          backgroundImage: `url(${logoUrl})`,
+          backgroundSize: "auto 100%",
+          backgroundPosition: "left center",
+          backgroundRepeat: "no-repeat",
+        }}
+        role="img"
         aria-label="MedNurse"
-      >
-        <rect x="14" y="4" width="4" height="24" fill={fill} rx="1" />
-        <rect x="4" y="14" width="24" height="4" fill={fill} rx="1" />
-      </svg>
+      />
     );
   }
 
   return (
-    <svg
-      viewBox="0 0 200 32"
-      xmlns="http://www.w3.org/2000/svg"
+    <img
+      src={logoUrl}
+      alt="MedNurse"
       className={className}
-      aria-label="MedNurse"
-    >
-      <rect x="2" y="10" width="3" height="12" fill="#E63946" rx="1" />
-      <rect x="0" y="14" width="7" height="4" fill="#E63946" rx="1" />
-      <text
-        x="14"
-        y="22"
-        fill={fill}
-        fontFamily="Inter, sans-serif"
-        fontWeight="800"
-        fontSize="18"
-        letterSpacing="2"
-      >
-        MEDNURSE
-      </text>
-    </svg>
+      style={{ objectFit: "contain", height: "100%", width: "auto" }}
+    />
   );
 }
