@@ -129,12 +129,12 @@ export function AdultTachycardiaPanel({
             prompt="Narrow complex (QRS < 0.12 s) or wide?"
             leftLabel="Narrow"
             rightLabel="Wide"
-            onSelect={(c) =>
-              setWidth(c === "left" ? "narrow-regular" : "wide-regular")
-            }
+            onSelect={(c) => setWidth(c === "left" ? "narrow" : "wide")}
           />
 
-          {(width === "narrow-regular" || width === "narrow-irregular") && (
+          {(width === "narrow" ||
+            width === "narrow-regular" ||
+            width === "narrow-irregular") && (
             <TriageDecision
               prompt="Regular or irregular?"
               leftLabel="Regular (likely SVT)"
@@ -145,7 +145,9 @@ export function AdultTachycardiaPanel({
             />
           )}
 
-          {(width === "wide-regular" || width === "wide-irregular") && (
+          {(width === "wide" ||
+            width === "wide-regular" ||
+            width === "wide-irregular") && (
             <TriageDecision
               prompt="Regular or irregular?"
               leftLabel="Regular"
