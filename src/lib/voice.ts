@@ -67,6 +67,96 @@ export function speak(line: string, opts: SpeakOptions = {}): void {
   }
 }
 
+export function isVoiceEnabled(): boolean {
+  return enabled && !!getSynth();
+}
+
+/**
+ * Speak free-form text on demand (algorithm coaching).
+ * Cancels any in-flight speech first. Returns a controller to stop and
+ * subscribe to completion. Does nothing if voice is disabled.
+ */
+export interface SpeakHandle {
+  stop: () => void;
+  done: Promise<void>;
+}
+
+export function speakText(text: string): SpeakHandle {
+  const synth = getSynth();
+  const noop: SpeakHandle = { stop: () => {}, done: Promise.resolve() };
+  if (!enabled || !synth || !text.trim()) return noop;
+  synth.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 1.0;
+  utt.pitch = 1.0;
+  utt.volume = volume;
+  const v = pickVoice();
+  if (v) utt.voice = v;
+  let resolve!: () => void;
+  const done = new Promise<void>((r) => {
+    resolve = r;
+  });
+  utt.onend = () => resolve();
+  utt.onerror = () => resolve();
+  let cancelled = false;
+  try {
+    synth.speak(utt);
+  } catch {
+    resolve();
+  }
+  return {
+    stop: () => {
+      if (cancelled) return;
+      cancelled = true;
+      try {
+        synth.cancel();
+      } catch {
+        /* ignore */
+      }
+      resolve();
+    },
+    done,
+  };
+}
+
+/**
+ * Sequentially speak a list of lines. Resolves when finished or stopped.
+ * onStep fires with each line index as it begins.
+ */
+export interface SequenceHandle {
+  stop: () => void;
+  done: Promise<void>;
+}
+
+export function speakSequence(
+  lines: string[],
+  onStep?: (index: number) => void,
+): SequenceHandle {
+  let stopped = false;
+  let current: SpeakHandle | null = null;
+  const done = (async () => {
+    for (let i = 0; i < lines.length; i++) {
+      if (stopped) return;
+      onStep?.(i);
+      current = speakText(lines[i]);
+      await current.done;
+      // small gap between steps for clarity
+      if (!stopped && i < lines.length - 1) {
+        await new Promise<void>((r) => setTimeout(r, 250));
+      }
+    }
+    onStep?.(-1);
+  })();
+  return {
+    stop: () => {
+      stopped = true;
+      current?.stop();
+      onStep?.(-1);
+    },
+    done,
+  };
+}
+
 export function cancelAll(): void {
   const synth = getSynth();
   if (!synth) return;
