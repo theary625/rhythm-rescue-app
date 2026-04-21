@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MedNurse CodeAssist</string>
+    <string name="title_activity_main">MedNurse CodeAssist</string>
+    <string name="package_name">com.recertme.rhythmrescue</string>
+    <string name="custom_url_scheme">com.recertme.rhythmrescue</string>
+</resources>
