@@ -7,6 +7,7 @@ interface Props {
   onDismiss: () => void;
   onRhythmCheck: () => void;
   colorBlind?: boolean;
+  compact?: boolean;
 }
 
 export function CompressorSwitchBanner({
@@ -14,6 +15,7 @@ export function CompressorSwitchBanner({
   onDismiss,
   onRhythmCheck,
   colorBlind = false,
+  compact = false,
 }: Props) {
   useEffect(() => {
     if (!visible) return;
@@ -29,10 +31,16 @@ export function CompressorSwitchBanner({
         onDismiss();
       }}
       aria-hidden={!visible}
+      style={{
+        top: `calc(env(safe-area-inset-top) + ${compact ? "4rem" : "3.5rem"})`,
+        transform: visible
+          ? "translateY(0)"
+          : `translateY(calc(-100% - env(safe-area-inset-top) - ${compact ? "4rem" : "3.5rem"}))`,
+      }}
       className={cn(
-        "fixed left-0 right-0 top-14 z-30 mx-auto flex w-full flex-col items-center justify-center gap-0.5 bg-brand-red px-5 py-3 text-center text-brand-white shadow-lg transition-transform duration-300 ease-out",
+        "fixed left-0 right-0 z-30 mx-auto flex w-full flex-col items-center justify-center gap-0.5 bg-brand-red px-5 py-3 text-center text-brand-white shadow-lg transition-transform duration-300 ease-out",
         colorBlind && "border-y-2 border-dotted border-white",
-        visible ? "translate-y-0" : "-translate-y-full pointer-events-none",
+        !visible && "pointer-events-none",
       )}
     >
       <span className="flex items-center gap-2 text-base font-bold leading-tight">

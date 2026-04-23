@@ -319,39 +319,48 @@ function CodeScreen() {
         colorBlindMode && "ring-2 ring-dotted ring-brand-red ring-offset-0",
       )}
       style={{
-        paddingTop: "env(safe-area-inset-top)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
       onClickCapture={handleAnyClick}
     >
       {!isCompact && (
-        <header className="sticky top-0 z-20 flex h-14 items-center justify-between gap-3 bg-brand-navy/95 px-4 backdrop-blur">
-          <Link to="/" aria-label="Home">
-            <MedNurseLogo variant="full" tone="light" className="h-5 w-auto" />
-          </Link>
-          <CodeTimer
-            startedAt={code.startedAt}
-            onTick={handleTimerTick}
-            className="text-3xl sm:text-5xl"
-          />
-          <div className="flex items-center gap-2">
-            <MicIndicator active={micActive} onToggleOff={() => setHandsFreeEnabled(false)} />
-            <div className="rounded-full bg-brand-accent/30 px-3 py-1 text-xs font-bold">
-              {modeLabel}
+        <header
+          className="sticky top-0 z-20 bg-brand-navy/95 px-4 backdrop-blur"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
+          <div className="flex h-14 items-center justify-between gap-3">
+            <Link to="/" aria-label="Home">
+              <MedNurseLogo variant="full" tone="light" className="h-5 w-auto" />
+            </Link>
+            <CodeTimer
+              startedAt={code.startedAt}
+              onTick={handleTimerTick}
+              className="text-4xl sm:text-5xl"
+            />
+            <div className="flex items-center gap-2">
+              <MicIndicator active={micActive} onToggleOff={() => setHandsFreeEnabled(false)} />
+              <div className="rounded-full bg-brand-accent/60 px-3 py-1.5 text-xs font-bold text-brand-white">
+                {modeLabel}
+              </div>
             </div>
           </div>
         </header>
       )}
 
       {isCompact && (
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 bg-brand-navy/95 px-4 backdrop-blur">
-          <MicIndicator active={micActive} onToggleOff={() => setHandsFreeEnabled(false)} />
-          <CodeTimer
-            startedAt={code.startedAt}
-            onTick={handleTimerTick}
-            className="text-5xl sm:text-6xl"
-          />
-          <div className="w-12" />
+        <header
+          className="sticky top-0 z-20 bg-brand-navy/95 px-4 backdrop-blur"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
+          <div className="flex h-16 items-center justify-between gap-3">
+            <MicIndicator active={micActive} onToggleOff={() => setHandsFreeEnabled(false)} />
+            <CodeTimer
+              startedAt={code.startedAt}
+              onTick={handleTimerTick}
+              className="text-5xl sm:text-6xl"
+            />
+            <div className="w-12" />
+          </div>
         </header>
       )}
 
@@ -360,6 +369,7 @@ function CodeScreen() {
         onDismiss={handleBannerDismiss}
         onRhythmCheck={handleBannerRhythmCheck}
         colorBlind={colorBlindMode}
+        compact={isCompact}
       />
 
       {!isCompact && epiTimer.state !== "idle" && (

@@ -210,13 +210,13 @@ function DebriefScreen() {
             </Button>
           )}
           <div className="grid grid-cols-3 gap-2">
-            <Button variant="secondary" size="md" onClick={onCopy}>
+            <Button variant="secondary" size="md" onClick={onCopy} className="border-brand-navy text-brand-navy hover:bg-brand-navy/10">
               Copy summary
             </Button>
-            <Button variant="secondary" size="md" onClick={onShare}>
+            <Button variant="secondary" size="md" onClick={onShare} className="border-brand-navy text-brand-navy hover:bg-brand-navy/10">
               Share
             </Button>
-            <Button variant="secondary" size="md" onClick={onDownload}>
+            <Button variant="secondary" size="md" onClick={onDownload} className="border-brand-navy text-brand-navy hover:bg-brand-navy/10">
               Download .txt
             </Button>
           </div>
